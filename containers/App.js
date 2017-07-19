@@ -1,15 +1,16 @@
 import React from 'react'
-import { Text } from 'react-native'
 import { bindActionCreators } from 'redux';
 
 import { connect } from 'react-redux'
 import {  } from '../actions'
+import Main from '../components/app'
 
-const App = (props) => {
- 
-  return (
-    <Text>fuck yeah bitch</Text>
-  )
+class App extends React.Component {
+  render() {
+    return (
+      <Main {...this.props}/>
+    );
+  }
 }
 
 function mapStateToProps (state) {

@@ -5,4 +5,4 @@ import {
 
 import { navigatorApp } from './app';
 
-AppRegistry.registerComponent('distance-editor-mobile', () => navigatorApp);
+AppRegistry.registerComponent('androidNavigator', () => navigatorApp);
