@@ -1,58 +1,84 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { View, Text, StyleSheet, Dimensions } from 'react-native'
+import { AppRegistry, View, StyleSheet, Dimensions } from 'react-native'
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text } from 'native-base';
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
+const stylesSH = StyleSheet.create({
   map: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height
+  }
 });
+
+const styles = {
+  container: {
+    flex: 1
+  }
+};
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
+    this.onRegionChangeComplete = this.onRegionChangeComplete.bind(this);
+    this.onMapReady = this.onMapReady.bind(this);
   }
-  componentDidMount() {
-    fetch('https://maps.googleapis.com/maps/api/directions/json?origin=Chicago,IL&destination=Los+Angeles,CA&waypoints=Joplin,MO|Oklahoma+City,OK&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y')
-    .then(function (response) {
-        return response.json()
-    })
-    .then(function (responseJson) {
-      console.log(responseJson)
-    })
-    .catch(function (error) {
-      console.log(error)
-    })
-
+  onRegionChangeComplete(value) {
+    debugger
   }
+  onMapReady(value) {
+    debugger
+  }
+  
+  // componentDidMount() {
+  //   fetch('https://maps.googleapis.com/maps/api/directions/json?origin=Chicago,IL&destination=Los+Angeles,CA&waypoints=Joplin,MO|Oklahoma+City,OK&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y')
+  //   .then(function (response) {
+  //       return response.json()
+  //   })
+  //   .then(function (responseJson) {
+  //     console.log(responseJson)
+  //   })
+  //   .catch(function (error) {
+  //     console.log(error)
+  //   })
+  // }
   render() {
     return (
-      <View style ={styles.container}>
-        <MapView
-          liteMode={true}
-          showsScale={true}
-          showsUserLocation={true}
-          style={styles.map}
-          initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}/>
-      </View>
+      <Container>
+        <Header>
+          <Left>
+            <Button transparent>
+              <Icon name='menu' />
+            </Button>
+          </Left>
+          <Body>
+            <Title>Header</Title>
+          </Body>
+          <Right />
+        </Header>
+        <Content  style ={styles.container}>
+          <MapView
+            style={stylesSH.map}
+            showsCompass={true}
+            showsScale={true}
+            toolbarEnabled={true}
+            loadingEnabled={true}
+            initialRegion={{
+              latitude: 37.78825,
+              longitude: -122.4324,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}/>
+        </Content>
+        <Footer>
+          <FooterTab>
+            <Button full>
+              <Text>Footer</Text>
+            </Button>
+          </FooterTab>
+        </Footer>
+      </Container>
     );
   }
 }
+
+AppRegistry.registerComponent('androidNavigator', () => App);

@@ -5,6 +5,9 @@ import { connect } from 'react-redux'
 import {  } from '../actions'
 import Main from '../components/app'
 
+import {
+  AppRegistry
+} from 'react-native';
 class App extends React.Component {
   render() {
     return (
@@ -15,14 +18,13 @@ class App extends React.Component {
 
 function mapStateToProps (state) {
   const props = {
-
   };
   return props;
 }
 
 function mapDispatchToProps (dispatch) {
   const actions = {
-
+    
   };
   let actionMap = { actions: bindActionCreators(actions, dispatch) };
   const handlers = {
@@ -36,3 +38,5 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(App)
+
+AppRegistry.registerComponent('androidNavigator', () => App);

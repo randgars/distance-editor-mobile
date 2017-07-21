@@ -1,7 +1,7 @@
-import test from './test'
+import loadFontsReducer from './loadFontsReducer'
 
 const reducers = {
-    test
+    loadFontsReducer
 }
 
 export default reducers
