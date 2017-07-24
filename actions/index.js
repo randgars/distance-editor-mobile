@@ -1,7 +1,9 @@
-import loadFonts from '../actions/loadFonts';
+import setWaypoint from '../actions/setWaypoint';
+import getRoute from '../actions/getRoute';
 
 const actions = {
-  loadFonts
+  setWaypoint,
+  getRoute
 };
 
 module.exports = actions;

@@ -1,7 +1,7 @@
-import loadFontsReducer from './loadFontsReducer'
+import waypointsReducer from './waypointsReducer'
 
 const reducers = {
-    loadFontsReducer
+    waypointsReducer
 }
 
 export default reducers
