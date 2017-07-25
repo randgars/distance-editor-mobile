@@ -48,12 +48,17 @@ export default class Directions extends React.Component {
   addWaypointToList(data, details) {
     let waypointLocation = details.geometry.location;
     let wayPointAddress = details.formatted_address;
-    this.props.screenProps.actions.setWaypoint(wayPointAddress, waypointLocation);
+    let wayPointPlaceID = details.place_id;
+    this.props.screenProps.actions.setWaypoint(wayPointAddress, waypointLocation, wayPointPlaceID);
     this.waypointInput.refs.textInput.clear();
     this.waypointInput.state.text = '';
   }
   getDirection() {
     this.props.screenProps.actions.getDistance(this.props.screenProps.waypoints);
+  }
+  componentDidUpdate() {
+    debugger
+    this.props.screenProps.pointLocations
   }
   render() {
     return (

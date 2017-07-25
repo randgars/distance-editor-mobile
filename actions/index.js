@@ -1,9 +1,9 @@
 import setWaypoint from '../actions/setWaypoint';
-import getRoute from '../actions/getRoute';
+import getDistance from '../actions/getDistance';
 
 const actions = {
   setWaypoint,
-  getRoute
+  getDistance
 };
 
 module.exports = actions;

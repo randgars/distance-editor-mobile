@@ -65,17 +65,22 @@ export default class MapComponent extends React.Component {
                 latitude: 37.78825,
                 longitude: -122.4324,
                 latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            }}>
-              { this.props.screenProps.waypoints.map((waipoint, index) => (
-                  <MapView.Marker
-                    key={index}
-                    pinColor='red'
-                    coordinate={{latitude: waipoint.location.lat, longitude: waipoint.location.lng}}
-                    title={`${index+1}`}
-                    description={`${index+1} point`}
-                  />)
-              )}
+                longitudeDelta: 0.0421
+          }}>
+            { this.props.screenProps.waypoints.map((waipoint, index) => (
+                <MapView.Marker
+                  key={index}
+                  pinColor='red'
+                  coordinate={{latitude: waipoint.location.lat, longitude: waipoint.location.lng}}
+                  title={`${index+1}`}
+                  description={`${index+1} point`}
+                />)
+            )}
+            { this.props.screenProps.pointLocations &&
+              <MapView.Polyline
+                coordinates={this.props.screenProps.pointLocations.map(item => ({latitude: item.lat, longitude: item.lng}))}
+              />
+            }
           </MapView>
         </Content>
         <Footer>

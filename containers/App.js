@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux'
 import {
   setWaypoint,
-  getRoute
+  getDistance
 } from '../actions'
 import Main from '../components/app'
 
@@ -21,18 +21,20 @@ class App extends React.Component {
 
 function mapStateToProps (state) {
   const props = {
-    waypoints: state.waypointsReducer.waypoints
+    waypoints: state.waypointsReducer.waypoints,
+    pointLocations: state.waypointsReducer.pointLocations
   };
   return props;
 }
 
 function mapDispatchToProps (dispatch) {
   const actions = {
-    setWaypoint
+    setWaypoint,
+    getDistance
   };
   let actionMap = { actions: bindActionCreators(actions, dispatch) };
   const handlers = {
-    getRoute: getRoute.bind(this, dispatch)
+    getDistance: getDistance.bind(this, dispatch)
   };
   actionMap.actions = Object.assign({}, actionMap.actions, handlers);
 

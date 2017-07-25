@@ -1,9 +1,10 @@
 import { SET_WAYPOINT } from './const'
 
-function setWaypoint(address, location) {
+function setWaypoint(address, location, id) {
 	let waypoint = {
 		address: address,
-		location: location
+		location: location,
+		placeID: id
 	}
 	return {
     type: SET_WAYPOINT,
