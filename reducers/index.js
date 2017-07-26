@@ -1,7 +1,11 @@
 import waypointsReducer from './waypointsReducer'
+import locationReducer from './locationReducer'
+import mainPointsReducer from './mainPointsReducer'
 
 const reducers = {
-    waypointsReducer
+    waypointsReducer,
+    locationReducer,
+    mainPointsReducer
 }
 
 export default reducers

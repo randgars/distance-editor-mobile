@@ -31,14 +31,31 @@ const styles = {
 export default class MapComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.onRegionChangeComplete = this.onRegionChangeComplete.bind(this);
-    this.onMapReady = this.onMapReady.bind(this);
+    this.state = {
+      region: {
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }
+    }
+    this.onRegionChangeComplete = this.onRegionChangeComplete.bind(this)
   }
-  onRegionChangeComplete(value) {
-    debugger
+  onRegionChangeComplete(coords) {
+    // this.setState({
+    //   region: {
+    //     latitude: coords.latitude,
+    //     longitude: coords.longitude,
+    //     latitudeDelta: coords.latitudeDelta,
+    //     longitudeDelta: coords.longitudeDelta,
+    //   }
+    // })
   }
-  onMapReady(value) {
-    debugger
+  componentDidMount() {
+    this.props.screenProps.actions.getCurrentLocation();
+  }
+  componentDidUpdate() {
+    this.map.animateToCoordinate(this.props.screenProps.currentLocation, 100);
   }
   render() {
     return (
@@ -56,29 +73,49 @@ export default class MapComponent extends React.Component {
         </Header>
         <Content  style ={styles.container}>
           <MapView
+            ref={ref => this.map = ref}
             style={stylesSH.map}
             showsCompass={true}
             showsScale={true}
             toolbarEnabled={true}
             loadingEnabled={true}
-            initialRegion={{
-                latitude: 37.78825,
-                longitude: -122.4324,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421
-          }}>
-            { this.props.screenProps.waypoints.map((waipoint, index) => (
+            region={this.state.region}
+            onRegionChangeComplete={this.onRegionChangeComplete}
+          >
+            {
+              this.props.screenProps.originPoint &&
+              <MapView.Marker
+                pinColor='red'
+                coordinate={{latitude: this.props.screenProps.originPoint.location.lat, longitude: this.props.screenProps.originPoint.location.lng}}
+                title='A'
+                description='Point A'
+              />
+            }
+            {
+              this.props.screenProps.destinationPoint &&
+              <MapView.Marker
+                pinColor='blue'
+                coordinate={{latitude: this.props.screenProps.destinationPoint.location.lat, longitude: this.props.screenProps.destinationPoint.location.lng}}
+                title='B'
+                description='Point B'
+              />
+            }
+            {
+              this.props.screenProps.waypoints.map((waipoint, index) => (
                 <MapView.Marker
                   key={index}
-                  pinColor='red'
+                  pinColor='green'
                   coordinate={{latitude: waipoint.location.lat, longitude: waipoint.location.lng}}
                   title={`${index+1}`}
-                  description={`${index+1} point`}
-                />)
-            )}
-            { this.props.screenProps.pointLocations &&
+                  description={`Point ${index+1}`}
+                />))
+            }
+            {
+              this.props.screenProps.pointLocations &&
               <MapView.Polyline
-                coordinates={this.props.screenProps.pointLocations.map(item => ({latitude: item.lat, longitude: item.lng}))}
+                coordinates={this.props.screenProps.pointLocations}
+                strokeWidth={2}
+                strokeColor={'#5D00FF'}
               />
             }
           </MapView>

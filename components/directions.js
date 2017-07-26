@@ -22,43 +22,53 @@ import {
 } from 'native-base';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-const data = [
-  'dsfdsf',
-  'dfdsf',
-  'sdfdsf'
-]
-
-const styles = StyleSheet.create({
-  autocompleteContainer: {
-    flex: 1,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    zIndex: 1
+const styles = {
+  originPoint: {
+    color: 'red'
+  },
+  destinationPoint: {
+    color: 'blue'
   }
-});
+}
 
 export default class Directions extends React.Component {
   constructor(props) {
     super(props);
     this.addWaypointToList = this.addWaypointToList.bind(this);
     this.getDirection = this.getDirection.bind(this);
+    this.addOriginToList = this.addOriginToList.bind(this);
+    this.addDestinationToList = this.addDestinationToList.bind(this);
+    this.addWaypointToList = this.addWaypointToList.bind(this);
   }
   addWaypointToList(data, details) {
-    let waypointLocation = details.geometry.location;
-    let wayPointAddress = details.formatted_address;
-    let wayPointPlaceID = details.place_id;
-    this.props.screenProps.actions.setWaypoint(wayPointAddress, waypointLocation, wayPointPlaceID);
+    let waypoint = {
+      address: details.formatted_address,
+      location: details.geometry.location,
+      placeID: details.place_id
+    }
+    this.props.screenProps.actions.setWaypoint(waypoint);
     this.waypointInput.refs.textInput.clear();
     this.waypointInput.state.text = '';
   }
-  getDirection() {
-    this.props.screenProps.actions.getDistance(this.props.screenProps.waypoints);
+  addOriginToList(data, details) {
+    let originPoint = {
+      address: details.formatted_address,
+      location: details.geometry.location,
+      placeID: details.place_id
+    }
+    this.props.screenProps.actions.setOriginPoint(originPoint);
   }
-  componentDidUpdate() {
-    debugger
-    this.props.screenProps.pointLocations
+  addDestinationToList(data, details) {
+    let destinationPoint = {
+      address: details.formatted_address,
+      location: details.geometry.location,
+      placeID: details.place_id
+    }
+    this.props.screenProps.actions.setDestinationPoint(destinationPoint);
+  }
+  getDirection() {
+    this.props.screenProps.actions.getDistance(this.props.screenProps.originPoint, this.props.screenProps.waypoints, this.props.screenProps.destinationPoint);
+    this.props.navigation.navigate('MapComponent')
   }
   render() {
     return (
@@ -82,11 +92,7 @@ export default class Directions extends React.Component {
               autoFocus={false}
               listViewDisplayed='auto'
               fetchDetails={true}
-              renderDescription={(row) => row.description}
-              onPress={(data, details = null) => {
-                console.log(data);
-                console.log(details);
-              }}
+              onPress={this.addOriginToList}
               getDefaultValue={() => {
                 return '';
               }}
@@ -103,10 +109,8 @@ export default class Directions extends React.Component {
                   color: '#1faadb',
                 },
               }}
-              currentLocation={true}
-              currentLocationLabel="Current location"
               nearbyPlacesAPI='GooglePlacesSearch'
-              debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+              debounce={200}
             />
             <GooglePlacesAutocomplete
               ref={ref => this.waypointInput = ref}
@@ -132,10 +136,8 @@ export default class Directions extends React.Component {
                   color: '#1faadb',
                 },
               }}
-              currentLocation={true}
-              currentLocationLabel="Current location"
               nearbyPlacesAPI='GooglePlacesSearch'
-              debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+              debounce={200}
             />
             <GooglePlacesAutocomplete
               placeholder='To'
@@ -143,11 +145,7 @@ export default class Directions extends React.Component {
               autoFocus={false}
               listViewDisplayed='auto'
               fetchDetails={true}
-              renderDescription={(row) => row.description}
-              onPress={(data, details = null) => {
-                console.log(data);
-                console.log(details);
-              }}
+              onPress={this.addDestinationToList}
               getDefaultValue={() => {
                 return '';
               }}
@@ -164,13 +162,14 @@ export default class Directions extends React.Component {
                   color: '#1faadb',
                 },
               }}
-              currentLocation={true}
-              currentLocationLabel="Current location"
               nearbyPlacesAPI='GooglePlacesSearch'
-              debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+              debounce={200}
             />
           </View>
           <View>
+          {
+            this.props.screenProps.originPoint && <Text style={styles.originPoint}>{this.props.screenProps.originPoint.address}</Text>
+          }
             <List
               dataArray={this.props.screenProps.waypoints}
               renderRow={(item, some, index) =>
@@ -182,6 +181,9 @@ export default class Directions extends React.Component {
                   </Left>
                 </ListItem>}
             />
+          {
+            this.props.screenProps.destinationPoint && <Text style={styles.destinationPoint}>{this.props.screenProps.destinationPoint.address}</Text>
+          }
           </View>
         </Content>
         <Footer>

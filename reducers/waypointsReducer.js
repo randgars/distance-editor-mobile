@@ -12,7 +12,6 @@ export default function waypointsReducer (state = initialState, action) {
         waypoints: [ ...state.waypoints, action.waypoint ]
       }
     case GET_ROUTE_SUCCESS:
-    debugger
       return {
         ...state,
         pointLocations: action.pointLocations

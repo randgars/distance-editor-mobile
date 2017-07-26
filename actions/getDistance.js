@@ -1,18 +1,25 @@
 import { GET_ROUTE_SUCCESS } from './const'
+import polyline from '@mapbox/polyline'
 
-export default function getDistance(dispatch, waypoints) {
+export default function getDistance(dispatch, originPoint, waypoints, destinationPoint) {
   let parentWaypoints = [];
   for (let i = 0; i < waypoints.length; i++) {
     let tempWaypoints = Object.assign([], waypoints);
     tempWaypoints.splice(i, 1);
     let origin = 'place_id:' + waypoints[i].placeID;
-    let destination;
-    let destinations = [];
-    for (let j = 0; j < tempWaypoints.length; j++) {
-      destination = 'place_id:' + tempWaypoints[j].placeID;
-      destinations.push(destination);
+    let destinationsStr;
+    if (waypoints.length > 1) {
+      let destination;
+      let destinations = [];
+      for (let j = 0; j < tempWaypoints.length; j++) {
+        destination = 'place_id:' + tempWaypoints[j].placeID;
+        destinations.push(destination);
+      }
+      destinationsStr = destinations.join('|');
+    } else {
+      destinationsStr = origin;
     }
-    let destinationsStr = destinations.join('|');
+    
     fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destinationsStr}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`)
     .then(function (response) {
       return response.json()
@@ -31,7 +38,7 @@ export default function getDistance(dispatch, waypoints) {
       }
       parentWaypoints.push(currentWaypoint);
       if (parentWaypoints.length == waypoints.length) {
-        dispatch(findMinDistation(dispatch, parentWaypoints));
+        dispatch(findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint));
       }
     })
     .catch(function (error) {
@@ -40,7 +47,7 @@ export default function getDistance(dispatch, waypoints) {
   }
 }
 
-function findMinDistation(dispatch, parentWaypoints) {
+function findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint) {
   let i = 0;
   let finalyWaypointsArray = [parentWaypoints[i].pointAddress];
   while (parentWaypoints.length > 0) {
@@ -48,7 +55,7 @@ function findMinDistation(dispatch, parentWaypoints) {
       break;
     }
     let tempChildWaypoints = parentWaypoints[i].childWaypoints;
-    tempChildWaypoints.sort((originPoint, destinationPoint) => (originPoint.distance - destinationPoint.distance));
+    tempChildWaypoints.sort((firstPoint, secondPoint) => (firstPoint.distance - secondPoint.distance));
     let nextWaypoint = tempChildWaypoints[0].pointAddress;
     finalyWaypointsArray.push(nextWaypoint);
     let previousWaypoint = parentWaypoints[i].pointAddress;
@@ -64,6 +71,8 @@ function findMinDistation(dispatch, parentWaypoints) {
       }
     }
   }
+  finalyWaypointsArray.unshift(originPoint.address);
+  finalyWaypointsArray.push(destinationPoint.address);
   dispatch(getRoute(dispatch, finalyWaypointsArray))
 }
 
@@ -89,21 +98,8 @@ function getRoute(dispatch, finalyWaypointsArray) {
       return response.json()
     })
     .then(function (responseJson) {
-      let pointLocations = [];
-      let legs = responseJson.routes[0].legs
-      // for (let i = 0; i < legs.length; i++) {
-      //   for (let j = 0; j < legs[i].steps.length; j++) {
-      //     pointLocations.push({start: legs[i].steps[j].start_location, end: legs[i].steps[j].end_location})
-      //   }
-      // }
-      for (let i = 0; i < legs.length; i++) {
-        for (let j = 0; j < legs[i].steps.length; j++) {
-          pointLocations.push(legs[i].steps[j].start_location)
-          if ((legs.length - 1) == i && (legs[i].steps.length - 1) == j) {
-            pointLocations.push(legs[i].steps[j].end_location)
-          }
-        }
-      }
+      let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
+      let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
       dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations })
     })
     .catch(function (error) {
