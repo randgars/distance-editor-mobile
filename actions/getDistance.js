@@ -1,8 +1,27 @@
-import { GET_ROUTE_SUCCESS } from './const'
+import { GET_DISTANCE, FIND_MIN_DISTATION, GET_ROUTE_SUCCESS } from './const'
 import polyline from '@mapbox/polyline'
 
 export default function getDistance(dispatch, originPoint, waypoints, destinationPoint) {
   let parentWaypoints = [];
+  if (!waypoints || waypoints.length == 0) {
+    let origin = originPoint.address.replace(/,\s/g, ',');
+    origin = origin.replace(/\s/g, '+');
+    let destination = destinationPoint.address.replace(/,\s/g, ',');
+    destination = destination.replace(/\s/g, '+');
+    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`)
+    .then(function (response) {
+      return response.json()
+    })
+    .then(function (responseJson) {
+      let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
+      let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
+      dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations })
+    })
+    .catch(function (error) {
+      console.log(error)
+    })
+    return;
+  }
   for (let i = 0; i < waypoints.length; i++) {
     let tempWaypoints = Object.assign([], waypoints);
     tempWaypoints.splice(i, 1);
@@ -40,6 +59,7 @@ export default function getDistance(dispatch, originPoint, waypoints, destinatio
       if (parentWaypoints.length == waypoints.length) {
         dispatch(findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint));
       }
+      dispatch({ type: GET_DISTANCE })
     })
     .catch(function (error) {
       console.log(error)
@@ -74,6 +94,7 @@ function findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoi
   finalyWaypointsArray.unshift(originPoint.address);
   finalyWaypointsArray.push(destinationPoint.address);
   dispatch(getRoute(dispatch, finalyWaypointsArray))
+  dispatch({ type: FIND_MIN_DISTATION })
 }
 
 function getRoute(dispatch, finalyWaypointsArray) {

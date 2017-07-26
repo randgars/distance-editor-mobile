@@ -1,10 +1,8 @@
 import { SET_WAYPOINT } from './const'
 
-function setWaypoint(waypoint) {
+export default function setWaypoint(waypoint) {
 	return {
     type: SET_WAYPOINT,
 		waypoint: waypoint
   } 
 }
-
-module.exports = setWaypoint;

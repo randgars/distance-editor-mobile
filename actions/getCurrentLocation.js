@@ -1,6 +1,6 @@
 import { GET_CURRENT_LOCATION } from './const'
 
-function getCurrentLocation(dispatch) {
+export default function getCurrentLocation(dispatch) {
   fetch('https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y', { method: 'POST' })
   .then(response => {
     return response.json()
@@ -13,5 +13,3 @@ function getCurrentLocation(dispatch) {
     console.log(error)
   })
 }
-
-module.exports = getCurrentLocation;
