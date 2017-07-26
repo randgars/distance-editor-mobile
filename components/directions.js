@@ -18,7 +18,8 @@ import {
   Item,
   Input,
   List,
-  ListItem
+  ListItem,
+  Toast
 } from 'native-base';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
@@ -34,6 +35,10 @@ const styles = {
 export default class Directions extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      originPoint: null,
+      destinationPoint: null
+    }
     this.addWaypointToList = this.addWaypointToList.bind(this);
     this.getDirection = this.getDirection.bind(this);
     this.addOriginToList = this.addOriginToList.bind(this);
@@ -51,22 +56,33 @@ export default class Directions extends React.Component {
     this.waypointInput.state.text = '';
   }
   addOriginToList(data, details) {
-    let originPoint = {
-      address: details.formatted_address,
-      location: details.geometry.location,
-      placeID: details.place_id
-    }
-    this.props.screenProps.actions.setOriginPoint(originPoint);
+    this.setState({
+      originPoint: {
+        address: details.formatted_address,
+        location: details.geometry.location,
+        placeID: details.place_id
+      }
+    })
+    this.props.screenProps.actions.setOriginPoint(this.state.originPoint);
   }
   addDestinationToList(data, details) {
-    let destinationPoint = {
-      address: details.formatted_address,
-      location: details.geometry.location,
-      placeID: details.place_id
-    }
-    this.props.screenProps.actions.setDestinationPoint(destinationPoint);
+    this.setState({
+      destinationPoint: {
+        address: details.formatted_address,
+        location: details.geometry.location,
+        placeID: details.place_id
+      }
+    })
+    this.props.screenProps.actions.setDestinationPoint(this.state.destinationPoint);
   }
   getDirection() {
+    if (!this.state.destinationPoint || !this.state.originPoint) {
+      return Toast.show({
+                text: 'Choose origin and destination points!',
+                position: 'bottom',
+                buttonText: 'Okay'
+              })
+    }
     this.props.screenProps.actions.getDistance(this.props.screenProps.originPoint, this.props.screenProps.waypoints, this.props.screenProps.destinationPoint);
     this.props.navigation.navigate('MapComponent')
   }

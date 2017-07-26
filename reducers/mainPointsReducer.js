@@ -1,4 +1,4 @@
-import { SET_ORIGIN_POINT, SET_DESTINATION_POINT } from '../actions/const'
+import { SET_ORIGIN_POINT, SET_DESTINATION_POINT, CLEAR_MAIN_POINTS } from '../actions/const'
 const initialState = {
   originPoint: null,
   destinationPoint: null
@@ -16,7 +16,12 @@ export default function waypointsReducer (state = initialState, action) {
         ...state,
         destinationPoint: action.destinationPoint
       }
-    
+    case CLEAR_MAIN_POINTS:
+      return {
+        ...state,
+        originPoint: null,
+        destinationPoint: null
+      }
     default:
       return state
   }

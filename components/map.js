@@ -40,6 +40,8 @@ export default class MapComponent extends React.Component {
       }
     }
     this.onRegionChangeComplete = this.onRegionChangeComplete.bind(this)
+    this.goToCurrentLocation = this.goToCurrentLocation.bind(this)
+    this.clearRoutes = this.clearRoutes.bind(this)
   }
   onRegionChangeComplete(coords) {
     // this.setState({
@@ -50,6 +52,13 @@ export default class MapComponent extends React.Component {
     //     longitudeDelta: coords.longitudeDelta,
     //   }
     // })
+  }
+  goToCurrentLocation() {
+    this.map.animateToCoordinate(this.props.screenProps.currentLocation, 100);
+  }
+  clearRoutes() {
+    this.props.screenProps.actions.clearWaypoints();
+    this.props.screenProps.actions.clearMainPoints();
   }
   componentDidMount() {
     this.props.screenProps.actions.getCurrentLocation();
@@ -85,6 +94,7 @@ export default class MapComponent extends React.Component {
             {
               this.props.screenProps.originPoint &&
               <MapView.Marker
+                identifier='pointA'
                 pinColor='red'
                 coordinate={{latitude: this.props.screenProps.originPoint.location.lat, longitude: this.props.screenProps.originPoint.location.lng}}
                 title='A'
@@ -94,6 +104,7 @@ export default class MapComponent extends React.Component {
             {
               this.props.screenProps.destinationPoint &&
               <MapView.Marker
+                identifier='pointB'
                 pinColor='blue'
                 coordinate={{latitude: this.props.screenProps.destinationPoint.location.lat, longitude: this.props.screenProps.destinationPoint.location.lng}}
                 title='B'
@@ -103,6 +114,7 @@ export default class MapComponent extends React.Component {
             {
               this.props.screenProps.waypoints.map((waipoint, index) => (
                 <MapView.Marker
+                  identifier={`point${index}`}
                   key={index}
                   pinColor='green'
                   coordinate={{latitude: waipoint.location.lat, longitude: waipoint.location.lng}}
@@ -122,8 +134,11 @@ export default class MapComponent extends React.Component {
         </Content>
         <Footer>
           <FooterTab>
-            <Button full>
-              <Text>Footer</Text>
+            <Button onPress={this.goToCurrentLocation}>
+              <Icon name="locate"/>
+            </Button>
+            <Button onPress={this.clearRoutes}>
+              <Icon name="refresh"/>
             </Button>
           </FooterTab>
         </Footer>

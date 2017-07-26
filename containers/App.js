@@ -7,7 +7,9 @@ import {
   getDistance,
   getCurrentLocation,
   setOriginPoint,
-  setDestinationPoint
+  setDestinationPoint,
+  clearMainPoints,
+  clearWaypoints
 } from '../actions'
 import Main from '../components/app'
 
@@ -37,7 +39,9 @@ function mapDispatchToProps (dispatch) {
   const actions = {
     setWaypoint,
     setOriginPoint,
-    setDestinationPoint
+    setDestinationPoint,
+    clearMainPoints,
+    clearWaypoints
   };
   let actionMap = { actions: bindActionCreators(actions, dispatch) };
   const handlers = {
