@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { AppRegistry, StyleSheet, Dimensions } from 'react-native'
+import { AppRegistry, StyleSheet, Dimensions, Image } from 'react-native'
 import {
   Container,
   Header,
@@ -13,22 +13,44 @@ import {
   Body,
   Icon,
   Text,
-  Content } from 'native-base';
+  Content,
+  StyleProvider
+} from 'native-base';
+import bluePinImg from '../images/blue-pin.png'
+import redPinImg from '../images/red-pin.png'
+import purpulePinImg from '../images/purpule-pin.png'
+import orangePinImg from '../images/orange-pin.png'
+  
+import getTheme from '../native-base-theme/components';
+import material from '../native-base-theme/variables/material';
 
 const stylesSH = StyleSheet.create({
   map: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
+  },
+  pinImage: {
+    width: 50,
+    height: 50
   }
 });
 
 const styles = {
   container: {
     flex: 1
+  },
+  icons: {
+    fontSize: 25
   }
 };
 
 export default class MapComponent extends React.Component {
+  static navigationOptions = {
+    drawerLabel: 'Map',
+    drawerIcon: () => (
+      <Icon name='map' style={styles.icons} />
+    ),
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -60,9 +82,6 @@ export default class MapComponent extends React.Component {
     this.props.screenProps.actions.clearWaypoints();
     this.props.screenProps.actions.clearMainPoints();
   }
-  componentDidMount() {
-    this.props.screenProps.actions.getCurrentLocation();
-  }
   componentDidUpdate() {
     this.map.animateToCoordinate(this.props.screenProps.currentLocation, 100);
   }
@@ -92,35 +111,60 @@ export default class MapComponent extends React.Component {
             onRegionChangeComplete={this.onRegionChangeComplete}
           >
             {
+              this.props.screenProps.currentLocation &&
+              <MapView.Marker
+                coordinate={this.props.screenProps.currentLocation}
+                title='Current location'
+                description='Current location'
+              >
+                <Image
+                  source={orangePinImg}
+                  style={stylesSH.pinImage}
+                />
+              </MapView.Marker>
+            }
+            {
               this.props.screenProps.originPoint &&
               <MapView.Marker
                 identifier='pointA'
-                pinColor='red'
                 coordinate={{latitude: this.props.screenProps.originPoint.location.lat, longitude: this.props.screenProps.originPoint.location.lng}}
                 title='A'
                 description='Point A'
-              />
+              >
+                <Image
+                  source={redPinImg}
+                  style={stylesSH.pinImage}
+                />
+              </MapView.Marker>
             }
             {
               this.props.screenProps.destinationPoint &&
               <MapView.Marker
                 identifier='pointB'
-                pinColor='blue'
                 coordinate={{latitude: this.props.screenProps.destinationPoint.location.lat, longitude: this.props.screenProps.destinationPoint.location.lng}}
                 title='B'
                 description='Point B'
-              />
+              >
+                <Image
+                  source={bluePinImg}
+                  style={stylesSH.pinImage}
+                />
+              </MapView.Marker>
             }
             {
               this.props.screenProps.waypoints.map((waipoint, index) => (
                 <MapView.Marker
                   identifier={`point${index}`}
                   key={index}
-                  pinColor='green'
                   coordinate={{latitude: waipoint.location.lat, longitude: waipoint.location.lng}}
                   title={`${index+1}`}
                   description={`Point ${index+1}`}
-                />))
+                >
+                <Image
+                  source={purpulePinImg}
+                  style={stylesSH.pinImage}
+                />
+              </MapView.Marker>))
             }
             {
               this.props.screenProps.pointLocations &&

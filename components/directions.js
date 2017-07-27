@@ -29,10 +29,19 @@ const styles = {
   },
   destinationPoint: {
     color: 'blue'
+  },
+  icons: {
+    fontSize: 25
   }
 }
 
 export default class Directions extends React.Component {
+  static navigationOptions = {
+    drawerLabel: 'Directions',
+    drawerIcon: () => (
+      <Icon name='navigate' style={styles.icons} />
+    ),
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -76,15 +85,16 @@ export default class Directions extends React.Component {
     this.props.screenProps.actions.setDestinationPoint(this.state.destinationPoint);
   }
   getDirection() {
-    if (!this.state.destinationPoint || !this.state.originPoint) {
+    if (this.state.originPoint && (this.state.destinationPoint || this.props.screenProps.waypoints.length > 0)) {
+      this.props.screenProps.actions.getDistance(this.props.screenProps.originPoint, this.props.screenProps.waypoints, this.props.screenProps.destinationPoint);
+      this.props.navigation.navigate('Map')
+    } else {
       return Toast.show({
-                text: 'Choose origin and destination points!',
+                text: 'Two or more points should be selected, including origin point!',
                 position: 'bottom',
                 buttonText: 'Okay'
               })
     }
-    this.props.screenProps.actions.getDistance(this.props.screenProps.originPoint, this.props.screenProps.waypoints, this.props.screenProps.destinationPoint);
-    this.props.navigation.navigate('MapComponent')
   }
   render() {
     return (

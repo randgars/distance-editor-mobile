@@ -2,26 +2,13 @@ import React from 'react';
 import MapView from 'react-native-maps';
 import { AppRegistry, StyleSheet, TouchableNativeFeedback } from 'react-native'
 import { Container, Content, Button, Text, List, Icon, ListItem, Left, Body, Right } from 'native-base';
-import { DrawerNavigator  } from 'react-navigation';
+import { DrawerNavigator, DrawerItems } from 'react-navigation';
 
 const styles = {
   sidebar: {
     backgroundColor: '#fff',
   }
 };
-
-const menuList = [
-  {
-    route: 'MapComponent',
-    icon: 'map',
-    name: 'Map'
-  },
-  {
-    route: 'Directions',
-    icon: 'navigate',
-    name: 'Get directions'
-  }  
-]
 
 export default class SideBar extends React.Component {
   constructor(props) {
@@ -31,18 +18,7 @@ export default class SideBar extends React.Component {
     return (
       <Container>
         <Content bounces={false} style={styles.sidebar}>
-          <List
-            dataArray={menuList}
-            renderRow={(item, some, index) =>
-							<ListItem key={index} button onPress={() => this.props.navigation.navigate(item.route)}>
-								<Left>
-									<Icon active name={item.icon} size={30} color="#900" />
-									<Text>
-										{item.name}
-									</Text>
-								</Left>
-              </ListItem>}
-          />
+          <DrawerItems {...this.props}/>
         </Content>
       </Container>
     );

@@ -17,6 +17,9 @@ import {
   AppRegistry
 } from 'react-native';
 class App extends React.Component {
+  componentDidMount() {
+    this.props.actions.getCurrentLocation();
+  }
   render() {
     return (
       <Main {...this.props}/>
@@ -41,12 +44,12 @@ function mapDispatchToProps (dispatch) {
     setOriginPoint,
     setDestinationPoint,
     clearMainPoints,
-    clearWaypoints
+    clearWaypoints,
+    getCurrentLocation,
+    getDistance
   };
   let actionMap = { actions: bindActionCreators(actions, dispatch) };
   const handlers = {
-    getDistance: getDistance.bind(this, dispatch),
-    getCurrentLocation: getCurrentLocation.bind(this, dispatch)
   };
   actionMap.actions = Object.assign({}, actionMap.actions, handlers);
 

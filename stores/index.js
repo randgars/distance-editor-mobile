@@ -5,9 +5,9 @@ import thunk from 'redux-thunk';
 
 export default function configureStore() {
 
-  const store = createStore(combineReducers(reducers), compose(
-    applyMiddleware(reduxLogger),
-    applyMiddleware(thunk)
+  const store = createStore(combineReducers(reducers), applyMiddleware(
+    thunk,
+    reduxLogger
   ));
   return store
 }

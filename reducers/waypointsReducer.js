@@ -1,10 +1,11 @@
 import { SET_WAYPOINT, GET_ROUTE_SUCCESS, CLEAR_WAYPOINTS } from '../actions/const'
 const initialState = {
   waypoints: [],
-  pointLocations: null
+  pointLocations: null,
+  parentWaypoints: null
 }
 
-export default function waypointsReducer (state = initialState, action) {
+export default function waypointsReducer(state = initialState, action) {
   switch (action.type) {
     case SET_WAYPOINT:
       return {

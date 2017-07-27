@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppRegistry } from 'react-native'
-import { Root } from 'native-base'
+import { Root  } from 'native-base'
 import Drawer from './drawer'
 import { StackNavigator  } from 'react-navigation';
 

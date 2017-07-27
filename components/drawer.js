@@ -7,13 +7,14 @@ import SideBar from './sidebar'
 
 const Drawer = DrawerNavigator(
   {
-    MapComponent: { screen: MapComponent },
+    Map: { screen: MapComponent },
     Directions: { screen: Directions }
   },
   {
-    initialRouteName: 'MapComponent',
+    initialRouteName: 'Map',
     contentOptions: {
-      activeTintColor: "#e91e63"
+      activeBackgroundColor: '#EDEDED',
+      labelStyle: {fontSize: 17, fontWeight: 'normal'}
     },
     contentComponent: props => <SideBar {...props} />
   }

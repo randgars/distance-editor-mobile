@@ -4,7 +4,7 @@ const initialState = {
   destinationPoint: null
 }
 
-export default function waypointsReducer (state = initialState, action) {
+export default function mainPointsReducer(state = initialState, action) {
   switch (action.type) {
     case SET_ORIGIN_POINT:
       return {

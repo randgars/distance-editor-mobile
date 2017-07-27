@@ -1,69 +1,72 @@
-import { GET_DISTANCE, FIND_MIN_DISTATION, GET_ROUTE_SUCCESS } from './const'
+import { FIND_MIN_DISTATION,
+  GET_DISTANCE_REQUEST, GET_DISTANCE_SUCCESS, GET_DISTANCE_FAILURE,
+  GET_ROUTE_REQUEST, GET_ROUTE_SUCCESS, GET_ROUTE_FAILURE
+} from './const'
 import polyline from '@mapbox/polyline'
 
-export default function getDistance(dispatch, originPoint, waypoints, destinationPoint) {
-  let parentWaypoints = [];
-  if (!waypoints || waypoints.length == 0) {
-    let origin = originPoint.address.replace(/,\s/g, ',');
-    origin = origin.replace(/\s/g, '+');
-    let destination = destinationPoint.address.replace(/,\s/g, ',');
-    destination = destination.replace(/\s/g, '+');
-    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`)
-    .then(function (response) {
-      return response.json()
-    })
-    .then(function (responseJson) {
-      let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
-      let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
-      dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations })
-    })
-    .catch(function (error) {
-      console.log(error)
-    })
-    return;
-  }
-  for (let i = 0; i < waypoints.length; i++) {
-    let tempWaypoints = Object.assign([], waypoints);
-    tempWaypoints.splice(i, 1);
-    let origin = 'place_id:' + waypoints[i].placeID;
-    let destinationsStr;
-    if (waypoints.length > 1) {
-      let destination;
-      let destinations = [];
-      for (let j = 0; j < tempWaypoints.length; j++) {
-        destination = 'place_id:' + tempWaypoints[j].placeID;
-        destinations.push(destination);
-      }
-      destinationsStr = destinations.join('|');
-    } else {
-      destinationsStr = origin;
+export default function getDistance(originPoint, waypoints, destinationPoint) {
+  return (dispatch) => {
+    let parentWaypoints = [];
+    if (!waypoints || waypoints.length == 0) {
+      let origin = originPoint.address.replace(/,\s/g, ',');
+      origin = origin.replace(/\s/g, '+');
+      let destination = destinationPoint.address.replace(/,\s/g, ',');
+      destination = destination.replace(/\s/g, '+');
+      dispatch(getRoute(origin, destination))
+      return;
     }
-    
-    fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destinationsStr}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`)
-    .then(function (response) {
-      return response.json()
-    })
-    .then(function (responseJson) {
-      let childWaypoints = [];
-      for (let i = 0; i < responseJson.destination_addresses.length; i++) {
-        childWaypoints.push({
-          pointAddress: responseJson.destination_addresses[i],
-          distance: responseJson.rows[0].elements[i].distance.value
-        })
+    for (let i = 0; i < waypoints.length; i++) {
+      let tempWaypoints = Object.assign([], waypoints);
+      tempWaypoints.splice(i, 1);
+      let origin = 'place_id:' + waypoints[i].placeID;
+      let destinationsStr;
+      if (waypoints.length > 1) {
+        let destination;
+        let destinations = [];
+        for (let j = 0; j < tempWaypoints.length; j++) {
+          destination = 'place_id:' + tempWaypoints[j].placeID;
+          destinations.push(destination);
+        }
+        destinationsStr = destinations.join('|');
+      } else {
+        destinationsStr = origin;
       }
-      let currentWaypoint = {
-        pointAddress: responseJson.origin_addresses[0],
-        childWaypoints: childWaypoints
-      }
-      parentWaypoints.push(currentWaypoint);
-      if (parentWaypoints.length == waypoints.length) {
-        dispatch(findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint));
-      }
-      dispatch({ type: GET_DISTANCE })
-    })
-    .catch(function (error) {
-      console.log(error)
-    })
+      dispatch({ type: GET_DISTANCE_REQUEST })
+      fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destinationsStr}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`).then(
+        response => {
+          return response.json()
+        },
+        error => {
+          return console.log(error)
+        }
+      )
+      .then(
+        responseJson => {
+          let childWaypoints = [];
+          for (let i = 0; i < responseJson.destination_addresses.length; i++) {
+            childWaypoints.push({
+              pointAddress: responseJson.destination_addresses[i],
+              distance: responseJson.rows[0].elements[i].distance.value
+            })
+          }
+          let currentWaypoint = {
+            pointAddress: responseJson.origin_addresses[0],
+            childWaypoints: childWaypoints
+          }
+          parentWaypoints.push(currentWaypoint);
+          if (parentWaypoints.length == waypoints.length) {
+            dispatch({ type: GET_DISTANCE_SUCCESS, parentWaypoints: parentWaypoints })
+            findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint)
+          }
+        },
+        error => {
+          dispatch({ type: GET_DISTANCE_FAILURE })
+        }
+      )
+      .catch(function (error) {
+        console.log(error)
+      })
+    }
   }
 }
 
@@ -92,12 +95,9 @@ function findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoi
     }
   }
   finalyWaypointsArray.unshift(originPoint.address);
-  finalyWaypointsArray.push(destinationPoint.address);
-  dispatch(getRoute(dispatch, finalyWaypointsArray))
-  dispatch({ type: FIND_MIN_DISTATION })
-}
-
-function getRoute(dispatch, finalyWaypointsArray) {
+  if(destinationPoint) {
+    finalyWaypointsArray.push(destinationPoint.address);
+  }
   let parts = [];
   for (let i = 0, max = 24; i < finalyWaypointsArray.length; i = i + max) {
     parts.push(finalyWaypointsArray.slice(i, i + max + 1));
@@ -114,15 +114,37 @@ function getRoute(dispatch, finalyWaypointsArray) {
     origin = origin.replace(/\s/g, '+');
     let destination = parts[k][parts[k].length - 1].replace(/,\s/g, ',');
     destination = destination.replace(/\s/g, '+');
-    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&waypoints=${waypoints}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`)
-    .then(function (response) {
-      return response.json()
-    })
-    .then(function (responseJson) {
-      let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
-      let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
-      dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations })
-    })
+    dispatch(getRoute(origin, destination, waypoints))
+  }
+}
+
+function getRoute(origin, destination, waypoints) {
+  return (dispatch) => {
+    let waypointsChecked;
+    dispatch({ type: GET_ROUTE_REQUEST })
+    if (waypoints) {
+      waypointsChecked = `&waypoints=${waypoints}`
+    } else {
+      waypointsChecked = ''
+    }    
+    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypointsChecked}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`).then(
+      response => {
+        return response.json()
+      },
+      error => {
+        return console.log(error)
+      }
+    )
+    .then(
+      responseJson => {
+        let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
+        let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
+        dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations })
+      },
+      error => {
+        dispatch({ type: GET_ROUTE_FAILURE })
+      }
+    )
     .catch(function (error) {
       console.log(error)
     })
