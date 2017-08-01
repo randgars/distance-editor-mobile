@@ -9,7 +9,11 @@ import {
   setOriginPoint,
   setDestinationPoint,
   clearMainPoints,
-  clearWaypoints
+  clearWaypoints,
+  addWaypointInput,
+  deleteWaypointInput,
+  setApiKey,
+  getApiKey
 } from '../actions'
 import Main from '../components/app'
 
@@ -18,7 +22,8 @@ import {
 } from 'react-native';
 class App extends React.Component {
   componentDidMount() {
-    this.props.actions.getCurrentLocation();
+    this.props.actions.getApiKey();
+    this.props.actions.getCurrentLocation(this.props.apiKey);
   }
   render() {
     return (
@@ -33,7 +38,10 @@ function mapStateToProps (state) {
     pointLocations: state.waypointsReducer.pointLocations,
     currentLocation: state.locationReducer.currentLocation,
     originPoint: state.mainPointsReducer.originPoint,
-    destinationPoint: state.mainPointsReducer.destinationPoint
+    destinationPoint: state.mainPointsReducer.destinationPoint,
+    waypointInputs: state.waypointsReducer.waypointInputs,
+    apiKey: state.apiKeyReducer.apiKey,
+    isChangedKey: state.apiKeyReducer.isChangedKey
   };
   return props;
 }
@@ -46,13 +54,13 @@ function mapDispatchToProps (dispatch) {
     clearMainPoints,
     clearWaypoints,
     getCurrentLocation,
-    getDistance
+    getDistance,
+    addWaypointInput,
+    deleteWaypointInput,
+    setApiKey,
+    getApiKey
   };
-  let actionMap = { actions: bindActionCreators(actions, dispatch) };
-  const handlers = {
-  };
-  actionMap.actions = Object.assign({}, actionMap.actions, handlers);
-
+  const actionMap = { actions: bindActionCreators(actions, dispatch) };
   return actionMap;
 }
 

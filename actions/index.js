@@ -5,6 +5,10 @@ import setOriginPoint from '../actions/setOriginPoint';
 import setDestinationPoint from '../actions/setDestinationPoint';
 import clearWaypoints from '../actions/clearWaypoints';
 import clearMainPoints from '../actions/clearMainPoints';
+import addWaypointInput from '../actions/addWaypointInput';
+import deleteWaypointInput from '../actions/deleteWaypointInput'
+import setApiKey from '../actions/setApiKey'
+import getApiKey from '../actions/getApiKey'
 
 const actions = {
   setWaypoint,
@@ -13,7 +17,11 @@ const actions = {
   setOriginPoint,
   setDestinationPoint,
   clearWaypoints,
-  clearMainPoints
+  clearMainPoints,
+  addWaypointInput,
+  deleteWaypointInput,
+  setApiKey,
+  getApiKey
 };
 
 module.exports = actions;

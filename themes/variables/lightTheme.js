@@ -131,10 +131,10 @@ export default {
 
   // Footer
   footerHeight: 55,
-  footerDefaultBg: "#2874F0",
+  footerDefaultBg: "#F3F3F3",
 
   // FooterTab
-  tabBarTextColor: "#8bb3f4",
+  tabBarTextColor: "#747474",
   tabBarTextSize: platform === "ios" ? 14 : 11,
   activeTab: platform === "ios" ? "#007aff" : "#fff",
   sTabBarActiveTextColor: "#007aff",
@@ -150,15 +150,15 @@ export default {
   topTabBarActiveBorderColor: "#fff",
 
   // Header
-  toolbarBtnColor: "#fff",
-  toolbarDefaultBg: "#2874F0",
+  toolbarBtnColor: "#747474",
+  toolbarDefaultBg: "#F3F3F3",
   toolbarHeight: platform === "ios" ? 64 : 56,
   toolbarIconSize: platform === "ios" ? 20 : 22,
   toolbarSearchIconSize: platform === "ios" ? 20 : 23,
   toolbarInputColor: platform === "ios" ? "#CECDD2" : "#fff",
   searchBarHeight: platform === "ios" ? 30 : 40,
   toolbarInverseBg: "#222",
-  toolbarTextColor: "#fff",
+  toolbarTextColor: "#747474",
   iosStatusbar: "light-content",
   toolbarDefaultBorder: "#2874F0",
   get statusBarColor() {
@@ -167,9 +167,9 @@ export default {
 
   // Icon
   iconFamily: "Ionicons",
-  iconFontSize: platform === "ios" ? 30 : 28,
+  iconFontSize: platform === "ios" ? 30 : 25,
   iconMargin: 7,
-  iconHeaderSize: platform === "ios" ? 33 : 24,
+  iconHeaderSize: platform === "ios" ? 33 : 29,
 
   // InputGroup
   inputFontSize: 17,
@@ -253,7 +253,7 @@ export default {
   subtitleColor: "#FFF",
 
   // New Variable
-  titleFontColor: "#FFF",
+  titleFontColor: "#747474",
 
   // Other
   borderRadiusBase: platform === "ios" ? 5 : 2,

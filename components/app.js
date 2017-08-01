@@ -1,8 +1,11 @@
 import React from 'react';
 import { AppRegistry } from 'react-native'
-import { Root  } from 'native-base'
+import { Root, StyleProvider  } from 'native-base'
 import Drawer from './drawer'
 import { StackNavigator  } from 'react-navigation';
+
+import getTheme from '../themes/components';
+import lightTheme from '../themes/variables/lightTheme';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -12,7 +15,9 @@ export default class App extends React.Component {
   render() {
     return (
       <Root>
-        <MainScreenNavigator screenProps={this.props}/>
+        <StyleProvider style={getTheme(lightTheme)}>
+          <MainScreenNavigator screenProps={this.props}/>
+        </StyleProvider>
       </Root>
     );
   }

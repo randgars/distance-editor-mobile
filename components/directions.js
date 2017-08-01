@@ -21,7 +21,8 @@ import {
   ListItem,
   Toast
 } from 'native-base';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import WaypointInput from './waypointInput';
+import MainPointInput from './mainPointInput';
 
 const styles = {
   originPoint: {
@@ -29,64 +30,28 @@ const styles = {
   },
   destinationPoint: {
     color: 'blue'
-  },
-  icons: {
-    fontSize: 25
   }
 }
-
+let iterator = 0;
 export default class Directions extends React.Component {
   static navigationOptions = {
     drawerLabel: 'Directions',
     drawerIcon: () => (
-      <Icon name='navigate' style={styles.icons} />
+      <Icon name='navigate' />
     ),
   };
   constructor(props) {
     super(props);
-    this.state = {
-      originPoint: null,
-      destinationPoint: null
-    }
-    this.addWaypointToList = this.addWaypointToList.bind(this);
     this.getDirection = this.getDirection.bind(this);
-    this.addOriginToList = this.addOriginToList.bind(this);
-    this.addDestinationToList = this.addDestinationToList.bind(this);
-    this.addWaypointToList = this.addWaypointToList.bind(this);
+    this.addWaypointInput = this.addWaypointInput.bind(this);
   }
-  addWaypointToList(data, details) {
-    let waypoint = {
-      address: details.formatted_address,
-      location: details.geometry.location,
-      placeID: details.place_id
-    }
-    this.props.screenProps.actions.setWaypoint(waypoint);
-    this.waypointInput.refs.textInput.clear();
-    this.waypointInput.state.text = '';
-  }
-  addOriginToList(data, details) {
-    this.setState({
-      originPoint: {
-        address: details.formatted_address,
-        location: details.geometry.location,
-        placeID: details.place_id
-      }
-    })
-    this.props.screenProps.actions.setOriginPoint(this.state.originPoint);
-  }
-  addDestinationToList(data, details) {
-    this.setState({
-      destinationPoint: {
-        address: details.formatted_address,
-        location: details.geometry.location,
-        placeID: details.place_id
-      }
-    })
-    this.props.screenProps.actions.setDestinationPoint(this.state.destinationPoint);
+  addWaypointInput() {
+    this.props.screenProps.actions.addWaypointInput(<WaypointInput apiKey={this.props.screenProps.apiKey} key={iterator} keyValue={iterator} actions={this.props.screenProps.actions} inputValue={this.props.screenProps.waypoints} />);
+    iterator++;
   }
   getDirection() {
-    if (this.state.originPoint && (this.state.destinationPoint || this.props.screenProps.waypoints.length > 0)) {
-      this.props.screenProps.actions.getDistance(this.props.screenProps.originPoint, this.props.screenProps.waypoints, this.props.screenProps.destinationPoint);
+    if (this.props.screenProps.originPoint && (this.props.screenProps.destinationPoint || this.props.screenProps.waypoints.length > 0)) {
+      this.props.screenProps.actions.getDistance(this.props.screenProps.originPoint, this.props.screenProps.waypoints, this.props.screenProps.destinationPoint, this.props.screenProps.apiKey);
       this.props.navigation.navigate('Map')
     } else {
       return Toast.show({
@@ -111,106 +76,17 @@ export default class Directions extends React.Component {
           <Right />
         </Header>
         <Content>
-          <View>
-            <GooglePlacesAutocomplete
-              placeholder='From'
-              minLength={2}
-              autoFocus={false}
-              listViewDisplayed='auto'
-              fetchDetails={true}
-              onPress={this.addOriginToList}
-              getDefaultValue={() => {
-                return '';
-              }}
-              query={{
-                key: 'AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y',
-                language: 'en',
-                types: '(cities)',
-              }}
-              styles={{
-                description: {
-                  fontWeight: 'bold',
-                },
-                predefinedPlacesDescription: {
-                  color: '#1faadb',
-                },
-              }}
-              nearbyPlacesAPI='GooglePlacesSearch'
-              debounce={200}
-            />
-            <GooglePlacesAutocomplete
-              ref={ref => this.waypointInput = ref}
-              placeholder='Add waypoints'
-              minLength={2}
-              autoFocus={false}
-              listViewDisplayed='auto'
-              fetchDetails={true}
-              onPress={this.addWaypointToList}
-              getDefaultValue={() => {
-                return '';
-              }}
-              query={{
-                key: 'AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y',
-                language: 'en',
-                types: '(cities)',
-              }}
-              styles={{
-                description: {
-                  fontWeight: 'bold',
-                },
-                predefinedPlacesDescription: {
-                  color: '#1faadb',
-                },
-              }}
-              nearbyPlacesAPI='GooglePlacesSearch'
-              debounce={200}
-            />
-            <GooglePlacesAutocomplete
-              placeholder='To'
-              minLength={2}
-              autoFocus={false}
-              listViewDisplayed='auto'
-              fetchDetails={true}
-              onPress={this.addDestinationToList}
-              getDefaultValue={() => {
-                return '';
-              }}
-              query={{
-                key: 'AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y',
-                language: 'en',
-                types: '(cities)',
-              }}
-              styles={{
-                description: {
-                  fontWeight: 'bold',
-                },
-                predefinedPlacesDescription: {
-                  color: '#1faadb',
-                },
-              }}
-              nearbyPlacesAPI='GooglePlacesSearch'
-              debounce={200}
-            />
-          </View>
-          <View>
-          {
-            this.props.screenProps.originPoint && <Text style={styles.originPoint}>{this.props.screenProps.originPoint.address}</Text>
-          }
-            <List
-              dataArray={this.props.screenProps.waypoints}
-              renderRow={(item, some, index) =>
-                <ListItem key={index} button noBorder>
-                  <Left>
-                    <Text>
-                      {item.address}
-                    </Text>
-                  </Left>
-                </ListItem>}
-            />
-          {
-            this.props.screenProps.destinationPoint && <Text style={styles.destinationPoint}>{this.props.screenProps.destinationPoint.address}</Text>
-          }
-          </View>
+          <Form>
+            <MainPointInput inputValue={this.props.screenProps.originPoint} apiKey={this.props.screenProps.apiKey} currentLocation={this.props.screenProps.currentLocation} actions={this.props.screenProps.actions} inputPlaceholder='From' origin />
+            {
+              this.props.screenProps.waypointInputs
+            }
+            <Button transparent full onPress={this.addWaypointInput}>
+              <Icon name='add' />
+              <Text>Add waypoint</Text>
+            </Button>
+            <MainPointInput inputValue={this.props.screenProps.destinationPoint} apiKey={this.props.screenProps.apiKey} actions={this.props.screenProps.actions} inputPlaceholder='To' />
+          </Form>
         </Content>
         <Footer>
           <FooterTab>

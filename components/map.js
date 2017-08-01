@@ -13,16 +13,12 @@ import {
   Body,
   Icon,
   Text,
-  Content,
-  StyleProvider
+  Content
 } from 'native-base';
 import bluePinImg from '../images/blue-pin.png'
 import redPinImg from '../images/red-pin.png'
 import purpulePinImg from '../images/purpule-pin.png'
 import orangePinImg from '../images/orange-pin.png'
-  
-import getTheme from '../native-base-theme/components';
-import material from '../native-base-theme/variables/material';
 
 const stylesSH = StyleSheet.create({
   map: {
@@ -38,9 +34,6 @@ const stylesSH = StyleSheet.create({
 const styles = {
   container: {
     flex: 1
-  },
-  icons: {
-    fontSize: 25
   }
 };
 
@@ -48,7 +41,7 @@ export default class MapComponent extends React.Component {
   static navigationOptions = {
     drawerLabel: 'Map',
     drawerIcon: () => (
-      <Icon name='map' style={styles.icons} />
+      <Icon name='map' />
     ),
   };
   constructor(props) {
@@ -152,11 +145,11 @@ export default class MapComponent extends React.Component {
               </MapView.Marker>
             }
             {
-              this.props.screenProps.waypoints.map((waipoint, index) => (
+              this.props.screenProps.waypoints.map((waypoint, index) => (
                 <MapView.Marker
                   identifier={`point${index}`}
                   key={index}
-                  coordinate={{latitude: waipoint.location.lat, longitude: waipoint.location.lng}}
+                  coordinate={{latitude: waypoint.waypoint.location.lat, longitude: waypoint.waypoint.location.lng}}
                   title={`${index+1}`}
                   description={`Point ${index+1}`}
                 >
@@ -171,7 +164,7 @@ export default class MapComponent extends React.Component {
               <MapView.Polyline
                 coordinates={this.props.screenProps.pointLocations}
                 strokeWidth={2}
-                strokeColor={'#5D00FF'}
+                strokeColor={'#2874F0'}
               />
             }
           </MapView>

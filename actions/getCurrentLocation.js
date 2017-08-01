@@ -1,9 +1,9 @@
 import { GET_CURRENT_LOCATION_REQUEST, GET_CURRENT_LOCATION_SUCCESS, GET_CURRENT_LOCATION_FAILURE } from './const'
 
-export default function getCurrentLocation() {
+export default function getCurrentLocation(key) {
   return (dispatch) => {
     dispatch({ type: GET_CURRENT_LOCATION_REQUEST })
-    fetch('https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y', { method: 'POST' }).then(
+    fetch(`https://www.googleapis.com/geolocation/v1/geolocate?key=${key}`, { method: 'POST' }).then(
       response => {
         return response.json()
       },

@@ -4,35 +4,52 @@ import { FIND_MIN_DISTATION,
 } from './const'
 import polyline from '@mapbox/polyline'
 
-export default function getDistance(originPoint, waypoints, destinationPoint) {
+export default function getDistance(originPoint, waypoints, destinationPoint, apiKey) {
+  waypoints = waypoints.map(item => (
+    item.waypoint
+  ))
   return (dispatch) => {
     let parentWaypoints = [];
+    let origin;
+    let destination;
     if (!waypoints || waypoints.length == 0) {
-      let origin = originPoint.address.replace(/,\s/g, ',');
+      origin = originPoint.address.replace(/,\s/g, ',');
       origin = origin.replace(/\s/g, '+');
-      let destination = destinationPoint.address.replace(/,\s/g, ',');
+      destination = destinationPoint.address.replace(/,\s/g, ',');
       destination = destination.replace(/\s/g, '+');
-      dispatch(getRoute(origin, destination))
+      dispatch(getRoute(apiKey, origin, destination))
+      return;
+    }
+    if (waypoints.length == 1) {
+      origin = originPoint.address.replace(/,\s/g, ',');
+      origin = origin.replace(/\s/g, '+');
+      if (!destinationPoint) {
+        destinationPoint = waypoints[0];
+        destination = destinationPoint.address.replace(/,\s/g, ',');
+        destination = destination.replace(/\s/g, '+');
+        dispatch(getRoute(apiKey, origin, destination))
+      } else {
+        destination = destinationPoint.address.replace(/,\s/g, ',');
+        destination = destination.replace(/\s/g, '+');
+        let waypoint = waypoints[0].address.replace(/,\s/g, ',');
+        waypoint = waypoint.replace(/\s/g, '+');
+        dispatch(getRoute(apiKey, origin, destination, waypoint))
+      }
       return;
     }
     for (let i = 0; i < waypoints.length; i++) {
       let tempWaypoints = Object.assign([], waypoints);
       tempWaypoints.splice(i, 1);
-      let origin = 'place_id:' + waypoints[i].placeID;
+      origin = 'place_id:' + waypoints[i].place_id;
       let destinationsStr;
-      if (waypoints.length > 1) {
-        let destination;
-        let destinations = [];
-        for (let j = 0; j < tempWaypoints.length; j++) {
-          destination = 'place_id:' + tempWaypoints[j].placeID;
-          destinations.push(destination);
-        }
-        destinationsStr = destinations.join('|');
-      } else {
-        destinationsStr = origin;
+      let destinations = [];
+      for (let j = 0; j < tempWaypoints.length; j++) {
+        destination = 'place_id:' + tempWaypoints[j].place_id;
+        destinations.push(destination);
       }
+      destinationsStr = destinations.join('|');
       dispatch({ type: GET_DISTANCE_REQUEST })
-      fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destinationsStr}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`).then(
+      fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destinationsStr}&key=${apiKey}`).then(
         response => {
           return response.json()
         },
@@ -56,7 +73,7 @@ export default function getDistance(originPoint, waypoints, destinationPoint) {
           parentWaypoints.push(currentWaypoint);
           if (parentWaypoints.length == waypoints.length) {
             dispatch({ type: GET_DISTANCE_SUCCESS, parentWaypoints: parentWaypoints })
-            findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint)
+            findMinDistation(apiKey, dispatch, originPoint, parentWaypoints, destinationPoint)
           }
         },
         error => {
@@ -70,7 +87,7 @@ export default function getDistance(originPoint, waypoints, destinationPoint) {
   }
 }
 
-function findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoint) {
+function findMinDistation(apiKey, dispatch, originPoint, parentWaypoints, destinationPoint) {
   let i = 0;
   let finalyWaypointsArray = [parentWaypoints[i].pointAddress];
   while (parentWaypoints.length > 0) {
@@ -114,11 +131,11 @@ function findMinDistation(dispatch, originPoint, parentWaypoints, destinationPoi
     origin = origin.replace(/\s/g, '+');
     let destination = parts[k][parts[k].length - 1].replace(/,\s/g, ',');
     destination = destination.replace(/\s/g, '+');
-    dispatch(getRoute(origin, destination, waypoints))
+    dispatch(getRoute(apiKey, origin, destination, waypoints))
   }
 }
 
-function getRoute(origin, destination, waypoints) {
+function getRoute(apiKey, origin, destination, waypoints) {
   return (dispatch) => {
     let waypointsChecked;
     dispatch({ type: GET_ROUTE_REQUEST })
@@ -126,8 +143,8 @@ function getRoute(origin, destination, waypoints) {
       waypointsChecked = `&waypoints=${waypoints}`
     } else {
       waypointsChecked = ''
-    }    
-    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypointsChecked}&key=AIzaSyAOMnmhinhboANYfzfyTqhlQqezl1Jj83Y`).then(
+    }
+    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypointsChecked}&key=${apiKey}`).then(
       response => {
         return response.json()
       },
