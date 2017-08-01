@@ -45,7 +45,7 @@ export default function waypointsReducer(state = initialState, action) {
       let tempWaypointInputs = Object.assign([], state.waypointInputs)
       let tempWaypoints = Object.assign([], state.waypoints)
       for (let i = 0; i < tempWaypointInputs.length; i++) {
-        if (+tempWaypointInputs[i].key == action.keyValue) {
+        if (+tempWaypointInputs[i] == action.keyValue) {
           tempWaypointInputs.splice(i, 1);
           tempWaypoints.splice(i, 1)
         }

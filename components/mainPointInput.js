@@ -141,11 +141,18 @@ export default class MainPointInput extends React.Component {
       })
     }
   }
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.inputValue && !this.props.inputValue) {
+      this.setState({
+        inputValue: null
+      })
+    }
+  }
   render() {
     return (
       <View>
         <Item inlineLabel>
-        	<Input value={this.state.inputValue} placeholder={this.props.inputPlaceholder} selectionColor='#747474' onChangeText={this.onChangeText}/>
+        	<Input ref={ref => this.input = ref} value={this.state.inputValue} placeholder={this.props.inputPlaceholder} selectionColor='#747474' onChangeText={this.onChangeText}/>
           {
             this.props.origin &&
             <Button transparent onPress={this.getLocation}>

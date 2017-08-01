@@ -108,7 +108,6 @@ export default class WaypointInput extends React.Component {
     this.props.actions.deleteWaypointInput(this.props.keyValue, this.state.point);
   }
   componentDidMount() {
-    debugger
     if (this.props.inputValue) {
       for (let i = 0; i < this.props.inputValue.length; i++) {
         if (this.props.inputValue[i].keyValue == this.props.keyValue) {

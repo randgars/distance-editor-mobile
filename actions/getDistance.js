@@ -4,7 +4,7 @@ import { FIND_MIN_DISTATION,
 } from './const'
 import polyline from '@mapbox/polyline'
 
-export default function getDistance(originPoint, waypoints, destinationPoint, apiKey) {
+export default function getDistance(originPoint, waypoints, destinationPoint, apiKey, isChecked) {
   waypoints = waypoints.map(item => (
     item.waypoint
   ))
@@ -35,6 +35,11 @@ export default function getDistance(originPoint, waypoints, destinationPoint, ap
         waypoint = waypoint.replace(/\s/g, '+');
         dispatch(getRoute(apiKey, origin, destination, waypoint))
       }
+      return;
+    }
+    if (!isChecked) {
+      waypoints = waypoints.map(item => (item.address))
+      splitPointsOnParts(apiKey, dispatch, waypoints, originPoint, destinationPoint);
       return;
     }
     for (let i = 0; i < waypoints.length; i++) {
@@ -111,13 +116,18 @@ function findMinDistation(apiKey, dispatch, originPoint, parentWaypoints, destin
       }
     }
   }
-  finalyWaypointsArray.unshift(originPoint.address);
+  splitPointsOnParts(apiKey, dispatch, finalyWaypointsArray, originPoint, destinationPoint);
+}
+
+function splitPointsOnParts(apiKey, dispatch, waypointsArray, originPoint, destinationPoint) {
+  waypointsArray.unshift(originPoint.address);
   if(destinationPoint) {
-    finalyWaypointsArray.push(destinationPoint.address);
+    waypointsArray.push(destinationPoint.address);
   }
   let parts = [];
-  for (let i = 0, max = 24; i < finalyWaypointsArray.length; i = i + max) {
-    parts.push(finalyWaypointsArray.slice(i, i + max + 1));
+  debugger
+  for (let i = 0, max = 24; i < waypointsArray.length; i = i + max) {
+    parts.push(waypointsArray.slice(i, i + max + 1));
   }
   for (let k = 0; k < parts.length; k++) {
     let waypoints = [];
