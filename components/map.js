@@ -82,7 +82,6 @@ export default class MapComponent extends React.Component {
     if (this.props.screenProps.pointLocations.length > 0) {
       this.map.fitToCoordinates(this.props.screenProps.pointLocations, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false });
     }
-    debugger
     if (this.props.screenProps.routeError) {
       return Toast.show({
                 text: this.props.screenProps.routeError,
@@ -130,19 +129,9 @@ export default class MapComponent extends React.Component {
               <MapView.Marker
                 identifier='originPoint'
                 coordinate={{latitude: this.props.screenProps.originPoint.location.lat, longitude: this.props.screenProps.originPoint.location.lng}}
-                title='A'
+                title='Origin point'
                 pinColor='#00FF04'
                 description={this.props.screenProps.originPoint.address}
-              />
-            }
-            {
-              this.props.screenProps.destinationPoint &&
-              <MapView.Marker
-                identifier='destinationPoint'
-                coordinate={{latitude: this.props.screenProps.destinationPoint.location.lat, longitude: this.props.screenProps.destinationPoint.location.lng}}
-                title='B'
-                pinColor='#00FFFF'
-                description={this.props.screenProps.destinationPoint.address}
               />
             }
             {
@@ -151,10 +140,20 @@ export default class MapComponent extends React.Component {
                   identifier={`point${index}`}
                   key={index}
                   coordinate={{latitude: waypoint.waypoint.location.lat, longitude: waypoint.waypoint.location.lng}}
-                  title={`${index+1}`}
+                  title={`${index+1} point`}
                   description={waypoint.waypoint.address}
                   pinColor='#7D00DC'
                 />))
+            }
+            {
+              this.props.screenProps.destinationPoint &&
+              <MapView.Marker
+                identifier='destinationPoint'
+                coordinate={{latitude: this.props.screenProps.destinationPoint.location.lat, longitude: this.props.screenProps.destinationPoint.location.lng}}
+                title='Destination point'
+                pinColor='#00FFFF'
+                description={this.props.screenProps.destinationPoint.address}
+              />
             }
             {
               this.props.screenProps.pointLocations.length > 0 &&
@@ -171,9 +170,12 @@ export default class MapComponent extends React.Component {
             <Button onPress={this.goToCurrentLocation}>
               <Icon name="locate"/>
             </Button>
-            <Button onPress={this.clearRoutes}>
-              <Icon name="refresh"/>
-            </Button>
+            {
+              this.props.screenProps.pointLocations.length > 0 &&
+              <Button onPress={this.clearRoutes}>
+                <Icon name="refresh"/>
+              </Button>
+            }
             {
               this.props.screenProps.pointLocations.length > 0 &&
               <Button onPress={this.showRouteInfo}>

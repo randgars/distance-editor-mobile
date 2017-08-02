@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { AppRegistry, StyleSheet, Dimensions, View } from 'react-native'
+import { AppRegistry, View } from 'react-native'
 import {
   Container,
   Header,
@@ -95,34 +95,26 @@ export default class Directions extends React.Component {
           <Form>
             <MainPointInput inputValue={this.props.screenProps.originPoint} apiKey={this.props.screenProps.apiKey} currentLocation={this.props.screenProps.currentLocation} actions={this.props.screenProps.actions} inputPlaceholder='From' origin />
             {
-              this.props.screenProps.directionMode !== 'transit' &&
               this.props.screenProps.waypointInputs.map((item) => (
                 <WaypointInput apiKey={this.props.screenProps.apiKey} key={item} keyValue={item} actions={this.props.screenProps.actions} inputValue={this.props.screenProps.waypoints} />
               ))
             }
-            {
-              this.props.screenProps.directionMode !== 'transit' &&
-              <Button transparent full onPress={this.addWaypointInput}>
-                <Icon name='add' />
-                <Text>Add waypoint</Text>
-              </Button>
-            }
+            <Button transparent full onPress={this.addWaypointInput}>
+              <Icon name='add' />
+              <Text>Add waypoint</Text>
+            </Button>
             <MainPointInput inputValue={this.props.screenProps.destinationPoint} apiKey={this.props.screenProps.apiKey} actions={this.props.screenProps.actions} inputPlaceholder='To' />
           </Form>
           <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around', marginVertical: 20}}>
             <DirectionModeBtn actions={this.props.screenProps.actions} directionMode={this.props.screenProps.directionMode} icoName='car' mode='driving'/>
-            <DirectionModeBtn actions={this.props.screenProps.actions} directionMode={this.props.screenProps.directionMode} icoName='bus' mode='transit' />
             <DirectionModeBtn actions={this.props.screenProps.actions} directionMode={this.props.screenProps.directionMode} icoName='walk' mode='walking' />
           </View>
-          {
-            this.props.screenProps.waypoints.length > 1 &&
-            <ListItem>
-              <CheckBox checked={this.state.isChecked} onPress={this.isChecked}/>
-              <Body>
-                <Text>Display the shortest route</Text>
-              </Body>
-            </ListItem>
-          }
+          <ListItem>
+            <CheckBox checked={this.state.isChecked} onPress={this.isChecked}/>
+            <Body>
+              <Text>Display the shortest route</Text>
+            </Body>
+          </ListItem>
         </Content>
         <Footer>
           <FooterTab>

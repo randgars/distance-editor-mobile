@@ -1,6 +1,6 @@
 import React from 'react';
 import { DrawerNavigator } from 'react-navigation';
-import { AppRegistry } from 'react-native'
+import { AppRegistry, Dimensions } from 'react-native'
 import MapComponent from './map'
 import Directions from './directions'
 import SideBar from './sidebar'
@@ -14,6 +14,7 @@ const Drawer = DrawerNavigator(
   },
   {
     initialRouteName: 'Map',
+    drawerWidth: Dimensions.get('window').width - 100,
     contentOptions: {
       activeBackgroundColor: '#EDEDED',
       labelStyle: {fontSize: 16, fontWeight: 'normal', color: '#747474'}

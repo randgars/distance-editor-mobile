@@ -5,9 +5,6 @@ import { FIND_MIN_DISTATION,
 import polyline from '@mapbox/polyline'
 
 export default function getDistance(mode, originPoint, waypoints, destinationPoint, apiKey, isChecked) {
-  if (mode == 'transit') {
-    waypoints.length = 0
-  }
   waypoints = waypoints.map(item => (
     item.waypoint
   ))
@@ -156,7 +153,6 @@ function getRoute(mode, apiKey, origin, destination, waypoints) {
     } else {
       waypointsChecked = ''
     }
-    debugger
     fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypointsChecked}&mode=${mode}&key=${apiKey}`).then(
       response => {
         return response.json()
@@ -167,7 +163,6 @@ function getRoute(mode, apiKey, origin, destination, waypoints) {
     )
     .then(
       responseJson => {
-        debugger
         let error;
         switch (responseJson.status) {
           case 'OK': {
