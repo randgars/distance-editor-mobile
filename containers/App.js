@@ -13,7 +13,9 @@ import {
   addWaypointInput,
   deleteWaypointInput,
   setApiKey,
-  getApiKey
+  getApiKey,
+  clearRoute,
+  selectedMode
 } from '../actions'
 import Main from '../components/app'
 
@@ -35,13 +37,16 @@ class App extends React.Component {
 function mapStateToProps (state) {
   const props = {
     waypoints: state.waypointsReducer.waypoints,
-    pointLocations: state.waypointsReducer.pointLocations,
+    routeError: state.routeReducer.routeError,
+    pointLocations: state.routeReducer.pointLocations,
+    routeInfo: state.routeReducer.routeInfo,
     currentLocation: state.locationReducer.currentLocation,
     originPoint: state.mainPointsReducer.originPoint,
     destinationPoint: state.mainPointsReducer.destinationPoint,
     waypointInputs: state.waypointsReducer.waypointInputs,
     apiKey: state.apiKeyReducer.apiKey,
-    isChangedKey: state.apiKeyReducer.isChangedKey
+    isChangedKey: state.apiKeyReducer.isChangedKey,
+    directionMode: state.routeReducer.directionMode
   };
   return props;
 }
@@ -58,7 +63,9 @@ function mapDispatchToProps (dispatch) {
     addWaypointInput,
     deleteWaypointInput,
     setApiKey,
-    getApiKey
+    getApiKey,
+    clearRoute,
+    selectedMode
   };
   const actionMap = { actions: bindActionCreators(actions, dispatch) };
   return actionMap;

@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { AppRegistry, StyleSheet, Dimensions, Image } from 'react-native'
+import { AppRegistry, StyleSheet, Dimensions, Alert } from 'react-native'
 import {
   Container,
   Header,
@@ -13,21 +13,14 @@ import {
   Body,
   Icon,
   Text,
-  Content
+  Content,
+  Toast
 } from 'native-base';
-import bluePinImg from '../images/blue-pin.png'
-import redPinImg from '../images/red-pin.png'
-import purpulePinImg from '../images/purpule-pin.png'
-import orangePinImg from '../images/orange-pin.png'
 
 const stylesSH = StyleSheet.create({
   map: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height
-  },
-  pinImage: {
-    width: 50,
-    height: 50
   }
 });
 
@@ -54,19 +47,27 @@ export default class MapComponent extends React.Component {
         longitudeDelta: 0.0421,
       }
     }
-    this.onRegionChangeComplete = this.onRegionChangeComplete.bind(this)
     this.goToCurrentLocation = this.goToCurrentLocation.bind(this)
     this.clearRoutes = this.clearRoutes.bind(this)
+    this.showRouteInfo = this.showRouteInfo.bind(this)
   }
-  onRegionChangeComplete(coords) {
-    // this.setState({
-    //   region: {
-    //     latitude: coords.latitude,
-    //     longitude: coords.longitude,
-    //     latitudeDelta: coords.latitudeDelta,
-    //     longitudeDelta: coords.longitudeDelta,
-    //   }
-    // })
+  showRouteInfo() {
+    let totalDistance = 0;
+    let totalDuration = 0;
+    for(let i = 0; i < this.props.screenProps.routeInfo.length; i++) {
+      totalDistance += this.props.screenProps.routeInfo[i].distance;
+      totalDuration += this.props.screenProps.routeInfo[i].duration;
+    }
+    totalDistance = totalDistance / 1000 ^ 0;
+    totalDuration = totalDuration / 3600 ^ 0;
+    Alert.alert(
+      'Route info',
+      `Distance: ${totalDistance} km \n Duartion: ${totalDuration} hs`,
+      [
+        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'}
+      ],
+      { cancelable: false }
+    )
   }
   goToCurrentLocation() {
     this.map.animateToCoordinate(this.props.screenProps.currentLocation, 100);
@@ -74,9 +75,22 @@ export default class MapComponent extends React.Component {
   clearRoutes() {
     this.props.screenProps.actions.clearWaypoints();
     this.props.screenProps.actions.clearMainPoints();
+    this.props.screenProps.actions.clearRoute();
   }
   componentDidUpdate() {
     this.map.animateToCoordinate(this.props.screenProps.currentLocation, 100);
+    if (this.props.screenProps.pointLocations.length > 0) {
+      this.map.fitToCoordinates(this.props.screenProps.pointLocations, { edgePadding: { top: 10, right: 10, bottom: 10, left: 10 }, animated: false });
+    }
+    debugger
+    if (this.props.screenProps.routeError) {
+      return Toast.show({
+                text: this.props.screenProps.routeError,
+                position: 'bottom',
+                buttonText: 'Okay',
+                type: 'danger'
+              })
+    }
   }
   render() {
     return (
@@ -101,7 +115,6 @@ export default class MapComponent extends React.Component {
             toolbarEnabled={true}
             loadingEnabled={true}
             region={this.state.region}
-            onRegionChangeComplete={this.onRegionChangeComplete}
           >
             {
               this.props.screenProps.currentLocation &&
@@ -109,40 +122,28 @@ export default class MapComponent extends React.Component {
                 coordinate={this.props.screenProps.currentLocation}
                 title='Current location'
                 description='Current location'
-              >
-                <Image
-                  source={orangePinImg}
-                  style={stylesSH.pinImage}
-                />
-              </MapView.Marker>
+                pinColor='#FF0000'
+              />
             }
             {
               this.props.screenProps.originPoint &&
               <MapView.Marker
-                identifier='pointA'
+                identifier='originPoint'
                 coordinate={{latitude: this.props.screenProps.originPoint.location.lat, longitude: this.props.screenProps.originPoint.location.lng}}
                 title='A'
-                description='Point A'
-              >
-                <Image
-                  source={redPinImg}
-                  style={stylesSH.pinImage}
-                />
-              </MapView.Marker>
+                pinColor='#00FF04'
+                description={this.props.screenProps.originPoint.address}
+              />
             }
             {
               this.props.screenProps.destinationPoint &&
               <MapView.Marker
-                identifier='pointB'
+                identifier='destinationPoint'
                 coordinate={{latitude: this.props.screenProps.destinationPoint.location.lat, longitude: this.props.screenProps.destinationPoint.location.lng}}
                 title='B'
-                description='Point B'
-              >
-                <Image
-                  source={bluePinImg}
-                  style={stylesSH.pinImage}
-                />
-              </MapView.Marker>
+                pinColor='#00FFFF'
+                description={this.props.screenProps.destinationPoint.address}
+              />
             }
             {
               this.props.screenProps.waypoints.map((waypoint, index) => (
@@ -151,16 +152,12 @@ export default class MapComponent extends React.Component {
                   key={index}
                   coordinate={{latitude: waypoint.waypoint.location.lat, longitude: waypoint.waypoint.location.lng}}
                   title={`${index+1}`}
-                  description={`Point ${index+1}`}
-                >
-                <Image
-                  source={purpulePinImg}
-                  style={stylesSH.pinImage}
-                />
-              </MapView.Marker>))
+                  description={waypoint.waypoint.address}
+                  pinColor='#7D00DC'
+                />))
             }
             {
-              this.props.screenProps.pointLocations &&
+              this.props.screenProps.pointLocations.length > 0 &&
               <MapView.Polyline
                 coordinates={this.props.screenProps.pointLocations}
                 strokeWidth={2}
@@ -177,6 +174,12 @@ export default class MapComponent extends React.Component {
             <Button onPress={this.clearRoutes}>
               <Icon name="refresh"/>
             </Button>
+            {
+              this.props.screenProps.pointLocations.length > 0 &&
+              <Button onPress={this.showRouteInfo}>
+                <Icon name="information"/>
+              </Button>
+            }
           </FooterTab>
         </Footer>
       </Container>

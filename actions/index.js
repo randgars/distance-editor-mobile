@@ -9,6 +9,8 @@ import addWaypointInput from '../actions/addWaypointInput';
 import deleteWaypointInput from '../actions/deleteWaypointInput'
 import setApiKey from '../actions/setApiKey'
 import getApiKey from '../actions/getApiKey'
+import clearRoute from '../actions/clearRoute'
+import selectedMode from '../actions/selectedMode'
 
 const actions = {
   setWaypoint,
@@ -21,7 +23,9 @@ const actions = {
   addWaypointInput,
   deleteWaypointInput,
   setApiKey,
-  getApiKey
+  getApiKey,
+  clearRoute,
+  selectedMode
 };
 
 module.exports = actions;

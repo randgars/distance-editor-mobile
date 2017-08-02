@@ -4,7 +4,10 @@ import { FIND_MIN_DISTATION,
 } from './const'
 import polyline from '@mapbox/polyline'
 
-export default function getDistance(originPoint, waypoints, destinationPoint, apiKey, isChecked) {
+export default function getDistance(mode, originPoint, waypoints, destinationPoint, apiKey, isChecked) {
+  if (mode == 'transit') {
+    waypoints.length = 0
+  }
   waypoints = waypoints.map(item => (
     item.waypoint
   ))
@@ -17,7 +20,7 @@ export default function getDistance(originPoint, waypoints, destinationPoint, ap
       origin = origin.replace(/\s/g, '+');
       destination = destinationPoint.address.replace(/,\s/g, ',');
       destination = destination.replace(/\s/g, '+');
-      dispatch(getRoute(apiKey, origin, destination))
+      dispatch(getRoute(mode, apiKey, origin, destination))
       return;
     }
     if (waypoints.length == 1) {
@@ -27,19 +30,19 @@ export default function getDistance(originPoint, waypoints, destinationPoint, ap
         destinationPoint = waypoints[0];
         destination = destinationPoint.address.replace(/,\s/g, ',');
         destination = destination.replace(/\s/g, '+');
-        dispatch(getRoute(apiKey, origin, destination))
+        dispatch(getRoute(mode, apiKey, origin, destination))
       } else {
         destination = destinationPoint.address.replace(/,\s/g, ',');
         destination = destination.replace(/\s/g, '+');
         let waypoint = waypoints[0].address.replace(/,\s/g, ',');
         waypoint = waypoint.replace(/\s/g, '+');
-        dispatch(getRoute(apiKey, origin, destination, waypoint))
+        dispatch(getRoute(mode, apiKey, origin, destination, waypoint))
       }
       return;
     }
     if (!isChecked) {
       waypoints = waypoints.map(item => (item.address))
-      splitPointsOnParts(apiKey, dispatch, waypoints, originPoint, destinationPoint);
+      splitPointsOnParts(mode, apiKey, dispatch, waypoints, originPoint, destinationPoint);
       return;
     }
     for (let i = 0; i < waypoints.length; i++) {
@@ -78,7 +81,7 @@ export default function getDistance(originPoint, waypoints, destinationPoint, ap
           parentWaypoints.push(currentWaypoint);
           if (parentWaypoints.length == waypoints.length) {
             dispatch({ type: GET_DISTANCE_SUCCESS, parentWaypoints: parentWaypoints })
-            findMinDistation(apiKey, dispatch, originPoint, parentWaypoints, destinationPoint)
+            findMinDistation(mode, apiKey, dispatch, originPoint, parentWaypoints, destinationPoint)
           }
         },
         error => {
@@ -92,7 +95,7 @@ export default function getDistance(originPoint, waypoints, destinationPoint, ap
   }
 }
 
-function findMinDistation(apiKey, dispatch, originPoint, parentWaypoints, destinationPoint) {
+function findMinDistation(mode, apiKey, dispatch, originPoint, parentWaypoints, destinationPoint) {
   let i = 0;
   let finalyWaypointsArray = [parentWaypoints[i].pointAddress];
   while (parentWaypoints.length > 0) {
@@ -116,16 +119,15 @@ function findMinDistation(apiKey, dispatch, originPoint, parentWaypoints, destin
       }
     }
   }
-  splitPointsOnParts(apiKey, dispatch, finalyWaypointsArray, originPoint, destinationPoint);
+  splitPointsOnParts(mode, apiKey, dispatch, finalyWaypointsArray, originPoint, destinationPoint);
 }
 
-function splitPointsOnParts(apiKey, dispatch, waypointsArray, originPoint, destinationPoint) {
+function splitPointsOnParts(mode, apiKey, dispatch, waypointsArray, originPoint, destinationPoint) {
   waypointsArray.unshift(originPoint.address);
   if(destinationPoint) {
     waypointsArray.push(destinationPoint.address);
   }
   let parts = [];
-  debugger
   for (let i = 0, max = 24; i < waypointsArray.length; i = i + max) {
     parts.push(waypointsArray.slice(i, i + max + 1));
   }
@@ -141,11 +143,11 @@ function splitPointsOnParts(apiKey, dispatch, waypointsArray, originPoint, desti
     origin = origin.replace(/\s/g, '+');
     let destination = parts[k][parts[k].length - 1].replace(/,\s/g, ',');
     destination = destination.replace(/\s/g, '+');
-    dispatch(getRoute(apiKey, origin, destination, waypoints))
+    dispatch(getRoute(mode, apiKey, origin, destination, waypoints))
   }
 }
 
-function getRoute(apiKey, origin, destination, waypoints) {
+function getRoute(mode, apiKey, origin, destination, waypoints) {
   return (dispatch) => {
     let waypointsChecked;
     dispatch({ type: GET_ROUTE_REQUEST })
@@ -154,7 +156,8 @@ function getRoute(apiKey, origin, destination, waypoints) {
     } else {
       waypointsChecked = ''
     }
-    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypointsChecked}&key=${apiKey}`).then(
+    debugger
+    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypointsChecked}&mode=${mode}&key=${apiKey}`).then(
       response => {
         return response.json()
       },
@@ -164,9 +167,51 @@ function getRoute(apiKey, origin, destination, waypoints) {
     )
     .then(
       responseJson => {
-        let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
-        let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
-        dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations })
+        debugger
+        let error;
+        switch (responseJson.status) {
+          case 'OK': {
+            let routeInfo = [];
+            let decodePolyline = polyline.decode(responseJson.routes[0].overview_polyline.points);
+            let pointLocations = decodePolyline.map(point => ( {latitude: point[0], longitude: point[1]} ))
+            for (let i = 0; i < responseJson.routes[0].legs.length; i++) {
+              routeInfo.push({ distance: responseJson.routes[0].legs[i].distance.value, duration: responseJson.routes[0].legs[i].duration.value })
+            }
+            return dispatch({ type: GET_ROUTE_SUCCESS, pointLocations: pointLocations, routeInfo: routeInfo })
+          }
+          case 'NOT_FOUND': {
+            error = 'The geocode of the place not found!';
+            break;
+          }
+          case 'ZERO_RESULTS': {
+            error = 'The route is not found!';
+            break;
+          }
+          case 'MAX_WAYPOINTS_EXCEEDED': {
+            error = 'Too many waypoints!';
+            break;
+          }
+          case 'INVALID_REQUEST': {
+            error = 'Invalid request!';
+            break;
+          }
+          case 'OVER_QUERY_LIMIT': {
+            error = 'Over query limit!';
+            break;
+          }
+          case 'REQUEST_DENIED': {
+            error = 'Request denied!';
+            break;
+          }
+          case 'UNKNOWN_ERROR': {
+            error = 'Unknown error!';
+            break;
+          }
+          default: {
+            return
+          }
+        }
+        dispatch({ type: GET_ROUTE_FAILURE, error: error })
       },
       error => {
         dispatch({ type: GET_ROUTE_FAILURE })

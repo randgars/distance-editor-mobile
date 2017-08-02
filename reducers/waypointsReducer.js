@@ -1,7 +1,6 @@
-import { SET_WAYPOINT, GET_ROUTE_SUCCESS, CLEAR_WAYPOINTS, ADD_WAYPOINT_INPUT, DELETE_WAYPOINT_INPUT } from '../actions/const'
+import { SET_WAYPOINT, CLEAR_WAYPOINTS, ADD_WAYPOINT_INPUT, DELETE_WAYPOINT_INPUT } from '../actions/const'
 const initialState = {
   waypoints: [],
-  pointLocations: null,
   parentWaypoints: null,
   waypointInputs: []
 }
@@ -24,16 +23,10 @@ export default function waypointsReducer(state = initialState, action) {
         ...state,
         waypoints: cloneWaypoints
       }
-    case GET_ROUTE_SUCCESS:
-      return {
-        ...state,
-        pointLocations: action.pointLocations
-      }
     case CLEAR_WAYPOINTS:
       return {
         ...state,
         waypoints: [],
-        pointLocations: null,
         waypointInputs: []
       }
     case ADD_WAYPOINT_INPUT:
